@@ -1,46 +1,185 @@
-\documentclass[12pt]{article}
-\usepackage{lingmacros}
-\usepackage{tree-dvips}
+\documentclass[a4paper,12pt]{article}
+\usepackage[brazil]{babel}
+\usepackage{graphicx}
+\usepackage{pgfplots}
+\usepackage{tikz}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{amsmath}
+
+\pgfplotsset{compat=1.16}
+
 \begin{document}
 
-\section*{Notes for My Paper}
+\section*{Parte teórica}
 
-Don't forget to include examples of topicalization.
-They look like this:
+\subsection*{Determinação do comprimento P}
 
-{\small
-\enumsentence{Topicalization from sentential subject:\\
-\shortex{7}{a John$_i$ [a & kltukl & [el &
-  {\bf l-}oltoir & er & ngii$_i$ & a Mary]]}
-{ & {\bf R-}clear & {\sc comp} &
-  {\bf IR}.{\sc 3s}-love   & P & him & }
-{John, (it's) clear that Mary loves (him).}}
-}
+Pode-se determinar o comprimento $P$ da sequência $y[n]$ gerada na saída do sistema em função de $K$ e $D$, comprimentos da entrada $x[n]$ e $y[n]$ respectivamente, com o método de cálculo analítico da convolução. Tal procedimento faz referência ao exemplo dado em aula pelo professor e ao exemplo 11 do capítulo 2 do  livro texto. A operação de convolução é dada por
 
-\subsection*{How to handle topicalization}
+\begin{equation}
+  y[n]=x[n]*h[n]=\sum_{k=-\infty}^{\infty}{x[k]h[n-k]}
+\end{equation}
 
-I'll just assume a tree structure like (\ex{1}).
+Iniciamos o processo operando sobre a resposta ao impulso. O objetivo é obter $h[n-k]$ neste primeiro momento. A função de resposta ao impulso pode ser esboçada (como sugere o enunciado) por:
 
-{\small
-\enumsentence{Structure of A$'$ Projections:\\ [2ex]
-\begin{tabular}[t]{cccc}
-    & \node{i}{CP}\\ [2ex]
-    \node{ii}{Spec} &   &\node{iii}{C$'$}\\ [2ex]
-        &\node{iv}{C} & & \node{v}{SAgrP}
-\end{tabular}
-\nodeconnect{i}{ii}
-\nodeconnect{i}{iii}
-\nodeconnect{iii}{iv}
-\nodeconnect{iii}{v}
-}
-}
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[scale=1]
+    \begin{axis}[axis lines=middle,x=1cm, xtick={1,...,3,5},
+      xticklabels={{}, {}, 3, $D-1$},
+      extra x ticks={1, 2},
+      extra x tick labels={$1$, $2$},
+      extra x tick style={
+        xticklabel style={yshift=0.5ex, anchor=south}},
+      xmin=0,xmax=6, ytick={\empty}, yticklabels={},
+      ymin=-4, ymax=6, axis on top]
+      \addplot+[ycomb, blue, thick, mark=*, mark options={blue}] plot coordinates
+      {(0,0) (1,-3) (2,-1) (3,1) (5,5)};
+    \end{axis}
+    \node at (4cm,2.5) {$\cdots$};
+    \node at (-0.5,2.6) {\textcolor{blue}{$h[0]$}};
+    \node at (1cm,0.2) {\textcolor{blue}{$h[1]$}};
+    \node at (2,1.3) {\textcolor{blue}{$h[2]$}};
+    \node at (3,3.2) {\textcolor{blue}{$h[3]$}};
+    \node at (5,5.5) {\textcolor{blue}{$h[D-1]$}};
+    \node at (6.1,2.5) {$k$};
+    \node at (0,6) {$h[k]$};
+  \end{tikzpicture}
+  \caption{Resposta ao impulso.}
+  \label{fig:impulse_respose}
+\end{figure}
 
-\subsection*{Mood}
+Espelhamos o sinal
 
-Mood changes when there is a topic, as well as when
-there is WH-movement.  \emph{Irrealis} is the mood when
-there is a non-subject topic or WH-phrase in Comp.
-\emph{Realis} is the mood when there is a subject topic
-or WH-phrase.
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[scale=1]
+    \begin{axis}[axis lines=middle, xtick={-5,-3,...,-1,0},
+      xticklabels={$-(D-1)$, -3, {}, {}, 0},
+      extra x ticks={-2, -1},
+      extra x tick labels={$-2$, $-1$},
+      extra x tick style={
+        xticklabel style={yshift=0.5ex, anchor=south}},
+      xmin=-6,xmax=1, ytick={\empty}, yticklabels={},
+      ymin=-4,  ymax=6, axis on top]
+      \addplot+[ycomb, blue, thick, mark=*, mark options={blue}] plot coordinates
+      {(0,0) (-1,-3) (-2,-1) (-3,1) (-5,5)};
+    \end{axis}
+    \node at (2,2.5) {$\cdots$};
+    \node at (7,2.5) {$k$};
+    \node at (6,6) {$h[-k]$};
+  \end{tikzpicture}
+  \caption{Resposta ao impulso espelhada.}
+  \label{fig:h_flipped}
+\end{figure}
+
+e efetuamos um deslocamento de $n$ amostras e forma-se o sinal $h[n-k]$
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[scale=1]
+    \begin{axis}[axis lines=middle, x=1cm, xtick={0,2,4,5,6,7},
+      xticklabels={0,\footnotesize{$n-(D-1)$}, \footnotesize{$n-3$}, {}, {}, \footnotesize{$n$}},
+      extra x ticks={5, 6},
+      extra x tick labels={\footnotesize{$n-2$}, \footnotesize{$n-1$}},
+      extra x tick style={
+        xticklabel style={yshift=0.5ex, anchor=south}},
+      xmin=0,xmax=8, ytick={\empty}, yticklabels={},
+      ymin=-4,  ymax=6, axis on top]
+      \addplot+[ycomb, blue, thick, mark=*, mark options={blue}] plot coordinates
+      {(2,5) (4,1) (5,-1) (6,-3) (7,0)};
+    \end{axis}
+    \node at (1cm,2.5) {$\cdots$};
+    \node at (3cm,2.5) {$\cdots$};
+    \node at (8.1cm,2.5) {$k$};
+    \node at (0,6) {$h[n-k]$};
+  \end{tikzpicture}
+  \caption{Resposta ao impulso espelhada e deslocada de $n$ amostras.}
+  \label{fig:h_flipped_shifted}
+\end{figure}
+
+Neste segundo momento iremos avaliar os extremos da convolução discreta. Para isso, analisaremos, primeiramente $n=0$, posição que a resposta ao impulso “toca” o sinal de entrada
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[scale=1]
+    \begin{axis}[axis lines=middle, x=1cm, y=0.5cm, xtick={-5,-3,...,-1,0,1,2,4},
+      xticklabels={$-(D-1)$, -3, {}, {}, 1, {}, $K-1$},
+      extra x ticks={-2, -1, 2},
+      extra x tick labels={$-2$, $-1$, $2$},
+      extra x tick style={
+        xticklabel style={yshift=0.5ex, anchor=south}},
+      xmin=-6,xmax=5, ytick={\empty}, yticklabels={},
+      ymin=-4,  ymax=6, axis on top]
+      \addplot+[ycomb, blue, thick, mark=*, mark options={blue}] plot coordinates
+      {(-5,5) (-3,1) (-2,-1) (-1,-3) (0,0)};
+      \addplot+[ycomb, red, thick, mark=x, mark options={red}] plot coordinates
+      {(0,2) (1,3) (2,-1.4) (4,4)};
+    \end{axis}
+    \node at (2,2.3) {$\cdots$};
+    \node at (9,2.3) {$\cdots$};
+    \node at (11,2.3) {$k$};
+    \node at (6,5.2) {\textcolor{blue}{$h[n-k]$}, \textcolor{red}{x[k]}};
+  \end{tikzpicture}
+  \caption{Primeira posição do deslocamento no processo de convolução.}
+  \label{fig:begin_convolution}
+\end{figure}
+
+Dessa imagem podemos notar que $n<0$ implica $y[n]=0$ uma vez que um nessas regiões os produtos das amostras da resposta ao impulso com a entrada seriam nulas. Isso se dá porque $x[n]=0$ para $n<0$, por definição do sinal.
+O outro extremo pode ser analisado por partes. Imagine primeiramente que o deslocamento será de $n=K-1$. Nessa condição, a amostra $h[0]$ coincidirá com a amostra $x[K-1]$. Com essa intuição, podemos imaginar então a segunda parte do raciocínio, quando a amostra $h[D-1]$ coincida com $x[K-1]$. Essa será o outro extremo do cálculo da convolução. Para que essa situação ocorra, teremos que fazer o deslocamento ser $n=K+D-2$. Segue o gráfico dessa última condição:
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[scale=1]
+    \begin{axis}[
+      axis lines=center,
+      x=1.5cm,
+      y=0.5cm,
+      xtick={0,1,2,3,4,5,6,7},
+      xticklabels={0, 1, {}, \tiny{$K-1$}, \tiny{$K+D-5$}, {}, {}, \tiny{$K+D-2$}},
+      extra x ticks={2, 5, 6},
+      extra x tick labels={$2$, \tiny{$K+D-4$}, \tiny{$K+D-3$}},
+      extra x tick style={xticklabel style={yshift=0.5ex, anchor=south}},
+      xmin=0,
+      xmax=8,
+      ytick={\empty},
+      yticklabels={},
+      ymin=-4,
+      ymax=6,
+      axis on top]
+      \addplot+[ycomb, blue, thick, mark=*, mark options={blue}] plot coordinates
+      {(3,5) (4,1) (5,-1) (6,-3) (7,0)};
+      \addplot+[ycomb, red, thick, mark=x, mark options={red}] plot coordinates
+      {(0,2) (1,3) (2,-1.4) (3,4)};
+    \end{axis}
+    \node at (3.75cm,2.3) {$\cdots$};
+    \node at (5.25cm,2.3) {$\cdots$};
+    \node at (12cm,2.3) {$k$};
+    \node at (0,5.2) {\textcolor{blue}{$h[n-k]$}, \textcolor{red}{x[k]}};
+  \end{tikzpicture}
+  \caption{Última posição do deslocamento no processo de convolução.}
+  \label{fig:end_convolution}
+\end{figure}
+
+Note que com um incremento unitário no deslocamento todos os produtos se anulam, como no caso de $n<0$. Dado isso, temos também $y[n]=0$ para $n>K+D-2$, e, podemos escrever, de uma forma mais ampla:
+
+\begin{equation}
+  y[n] =
+  \begin{cases}
+    x[n]*h[n], & 0 \leq n \leq K+D-2\\
+    0        , & caso\ contr\acute{a}rio
+  \end{cases}
+\end{equation}
+
+Fica evidente dessa análise que o comprimento temporal da saída $y[n]$ será dado por
+
+\begin{equation}
+  P=K+D-1
+\end{equation}
+
+a soma de uma unidade em relação ao intervalo definido na função por partes de deve por esse conjunto iniciar em zero.
+
+
 
 \end{document}
