@@ -1,0 +1,8 @@
+\babel@toc {brazil}{}
+\contentsline {section}{\numberline {1}Parte teórica}{1}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Determinação do comprimento P}{1}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Cálculo da convoução em termos matriciais}{4}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}Resposta em frequência}{6}{subsection.1.3}%
+\contentsline {subsection}{\numberline {1.4}Procedimento manual}{8}{subsection.1.4}%
+\contentsline {subsubsection}{\numberline {1.4.1}Procedimento automático}{8}{subsubsection.1.4.1}%
+\contentsline {section}{\numberline {2}Parte computacional}{11}{section.2}%

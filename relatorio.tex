@@ -1,24 +1,65 @@
-\documentclass[a4paper,12pt]{article}
+\documentclass[x11names,a4paper,12pt]{article}
 \usepackage[brazil]{babel}
+\usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage{pgfplots}
 \usepackage{tikz}
 \usepackage{float}
 \usepackage{xcolor}
 \usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
 
 \pgfplotsset{compat=1.16}
 
+\usetikzlibrary{shapes.geometric,arrows}
+
+\tikzstyle{startstop} = [rectangle,
+                         rounded corners,
+                         minimum width=3cm,
+                         minimum height=1cm,
+                         text centered,
+                         draw=black,
+                         fill=red!30]
+
+\tikzstyle{process} = [rectangle,
+                       minimum width=3cm,
+                       minimum height=1cm,
+                       text centered,
+                       text width=3cm,
+                       draw=black,
+                       fill=orange!30]
+
+\tikzstyle{decision} = [diamond,
+                        minimum width=3cm,
+                        minimum height=1cm,
+                        text centered,
+                        draw=black,
+                        fill=green!30]
+
+\tikzstyle{arrow} = [thick,
+                      ->,
+                      >=stealth]
+
+\title{Exercício de Fixação de Conceitos (EFC) 1 – Sistemas LIT e Resposta em Frequências}
+\author{George Nicolas Kontogiorgos}
+\date{\today}
+
 \begin{document}
 
-\section*{Parte teórica}
+\maketitle
 
-\subsection*{Determinação do comprimento P}
+\tableofcontents
 
-Pode-se determinar o comprimento $P$ da sequência $y[n]$ gerada na saída do sistema em função de $K$ e $D$, comprimentos da entrada $x[n]$ e $y[n]$ respectivamente, com o método de cálculo analítico da convolução. Tal procedimento faz referência ao exemplo dado em aula pelo professor e ao exemplo 11 do capítulo 2 do  livro texto. A operação de convolução é dada por
+\section{Parte teórica}
+
+\subsection{Determinação do comprimento P} \label{ssec:p_length}
+
+Podemos determinar o comprimento $P$ da sequência $y[n]$ gerada na saída do sistema em função de $K$ e $D$, comprimentos da entrada $x[n]$ e da resposta ao impulso $h[n]$ respectivamente, com o método de cálculo analítico da convolução. Tal procedimento faz referência ao exemplo dado em aula pelo professor e ao exemplo 11 do capítulo 2 do  livro texto. A operação de convolução é dada por
 
 \begin{equation}
   y[n]=x[n]*h[n]=\sum_{k=-\infty}^{\infty}{x[k]h[n-k]}
+  \label{eqn:discrete_convolution}
 \end{equation}
 
 Iniciamos o processo operando sobre a resposta ao impulso. O objetivo é obter $h[n-k]$ neste primeiro momento. A função de resposta ao impulso pode ser esboçada (como sugere o enunciado) por:
@@ -179,6 +220,245 @@ Fica evidente dessa análise que o comprimento temporal da saída $y[n]$ será d
 \end{equation}
 
 a soma de uma unidade em relação ao intervalo definido na função por partes de deve por esse conjunto iniciar em zero.
+
+\subsection{Cálculo da convoução em termos matriciais}
+
+Definiremos o vetor de entrada
+
+\begin{equation}
+  \mathbf{x}=
+  \begin{pmatrix}
+    x_0 & x_2 & \cdots & x_{K-1}
+  \end{pmatrix}^T
+\end{equation}
+
+o vetor de saída
+
+\begin{equation}
+  \mathbf{y}=
+  \begin{pmatrix}
+    y_0 & y_2 & \cdots & y_{P-1}
+  \end{pmatrix}^T
+\end{equation}
+
+e a relação entre eles, que denominaremos aqui como matriz de resposta ao impulso
+
+\begin{equation}
+  \mathbf{H}=
+  \begin{pmatrix}
+    h_{00} & h_{01} & \cdots & h_{0{K-1}} \\
+    h_{10} & h_{11} & \cdots & h_{1{K-1}} \\
+    \vdots & \vdots & \ddots & \vdots \\
+    h_{{P-1}0} & h_{{P-1}1} & \cdots & h_{{P-1}{K-1}}
+  \end{pmatrix}
+\end{equation}
+
+Encontraremos uma relação entre a convolução discreta e o produto de matriz por vetor, o qual é dado por
+
+\begin{equation}
+  \mathbf{y}=\mathbf{H}\mathbf{x} \Leftrightarrow y_{i}=\sum_{j=0}^{K-1} h_{ij} x_{j}
+  \label{eqn:conv_matrix}
+\end{equation}
+
+Associamos os elementos das matrizes com os elementos da sequência
+
+\begin{equation}
+  \begin{gathered}
+    h_{ij} = h[i-j] \\
+    x_{j}  = x[j] \\
+    y_{i}  = y[i]
+  \end{gathered}
+\end{equation}
+
+e reescrevemos o produto da equação \ref{eqn:conv_matrix} como
+
+\begin{equation}
+  y[i]=\sum_{j=0}^{K-1}x[j]h[i-j]
+  \label{eq:conv_matrix}
+\end{equation}
+
+encontramos a saída como função da convolução dos sinal de entrada com a resposta ao impulso (descrita na subseção \ref{ssec:p_length}, equação \ref{eqn:discrete_convolution}), limitada no intervalo $[0,K-1]$. Podemos representar o resultado encontrado na equação \ref{eq:conv_matrix} na forma matricial
+
+\begin{equation}
+  \mathbf{H}=
+  \begin{pmatrix}
+    h[0] & h[-1] & h[-2] & \cdots & h[-K+1] \\
+    h[1] & h[0] & h[-1]  & \cdots & h[-K+2] \\
+    \vdots & \vdots & \vdots & \ddots & \vdots \\
+    h[K-1] & h[K-2] & h[K-3] & \cdots & h[0]
+  \end{pmatrix}
+\end{equation}
+
+que é conhecida como matriz de Toeplitz.
+
+Supondo que a resposta ao impulso é finita e possui comprimento $D$, como descrito em \ref{ssec:p_length}, a matriz $\mathbf{H}$ assumirá a forma
+
+\begin{equation}
+  \mathbf{H}=
+  \begin{cases}
+    \begin{pmatrix}
+      h[0]                 & 0                    & \cdots & 0      & 0                     & 0                    & \cdots & 0                   \\
+      h[1]                 & h[0]                 & \cdots & 0      & 0                     & 0                    & \cdots & 0                   \\
+      \vdots               & \vdots               & \ddots & \vdots & \vdots                & \vdots               & \ddots & \vdots              \\
+      \scriptstyle{h[D-1]} & \scriptstyle{h[D-2]} & \cdots & h[-1]  & h[0]                  & 0                    & \cdots & 0                   \\
+      \vdots               & \vdots               & \ddots & \vdots & \vdots                & \vdots               & \cdots & \vdots              \\
+      0                    & 0                    & \cdots & 0      & \scriptstyle{h[D-1]}  & \scriptstyle{h[D-2]} & \cdots & h[0]                \\
+      \vdots               & \vdots               & \ddots & \vdots & \vdots                & \vdots               & \cdots & \vdots              \\
+      0                    & 0                    & \cdots & 0      & 0                     & 0                    & \cdots & \scriptstyle{h[D-1]}\\
+    \end{pmatrix} &, D\leq K \\
+    \\
+    \begin{pmatrix}
+      h[0]                 & 0                    & \cdots & 0      & 0                     & 0                    & \cdots & 0                   \\
+      h[1]                 & h[0]                 & \cdots & 0      & 0                     & 0                    & \cdots & 0                   \\
+      \vdots               & \vdots               & \ddots & \vdots & \vdots                & \vdots               & \ddots & \vdots              \\
+      \scriptstyle{h[K-1]} & \scriptstyle{h[K-2]} & \cdots & \cdots & \cdots                & \cdots               & \cdots & h[0]                \\
+      \vdots               & \vdots               & \ddots & \vdots & \vdots                & \vdots               & \cdots & \vdots              \\
+      0                    & 0                    & \cdots & 0      & 0                     & 0                    & \cdots & \scriptstyle{h[D-1]}\\
+    \end{pmatrix} &, D>K
+  \end{cases}
+\end{equation}
+
+As condições das dimensões não influenciam o resultado final, elas se fazem presentes apenas para fins didáticos. Note que, quando $D\leq K$ todos elementos da resposta ao impulso se encaixam na matriz $\mathbf{H}$ em, pelo menos, uma linha. Quando $D>K$, é possível observar que nenhuma linha de $\mathbf{H}$ contém todos os elementos da sequência da resposta ao impulso.
+
+\subsection{Resposta em frequência}
+
+Para encontrar a resposta em frequência do sistema desconhecido exploraremos o conceito de autofunção para os sistemas lineares e invariantes no tempo. As autofunções de um sistema são funções que aplicadas a ele reproduzem a entrada multiplicada por um fator de escala denominado autovalor.
+
+Considere a entrada $x[n]=e^{j\omega n}$ e a convolução discreta descrita na equação \ref{eqn:discrete_convolution} escrita em sua outra forma:
+
+\begin{equation}
+  y[n]=\sum_{k=-\infty}^{\infty}{h[k]x[n-k]}=e^{j\omega n}\sum_{k=-\infty}^{\infty}{h[k]e^{-j\omega k}}=H(e^{j\omega})e^{j\omega n}
+\end{equation}
+
+Temos que $H(e^{j\omega})$ é o fator de escala (autovalor) da autofunção $e^{j\omega n}$ para o sistema dado. Podemos interpretar que $H(e^{j\omega})$ é o ganho do sistema naquela frquência $\omega$. Se considerarmos o intervalo $ \omega \in [0,\pi]$, $H(e^{j\omega})$ demonstra como o sistema se comporta no intervalo dado de frequências, recebendo o nome de resposta em frequência.
+
+Nosso gerador de funções não é capaz de gerar a entrada $x[n]=e^{j\omega n}$ proposta. No entanto, ele pode de gerar a funções trigonométricas. Em particular, escolheremos $x[n]=\cos{\omega n}$ e a injetaremos na entrada do sistema teremos
+
+\begin{equation}
+  \begin{aligned}
+    y[n] & = \sum_{k=-\infty}^{\infty}h[k]\cos{\omega (n-k)} = \sum_{k=-\infty}^{\infty}h[k] \left( \frac{e^{j\omega (n-k)}+e^{-j\omega (n-k)}}{2} \right) \\
+    \\
+         & = \frac{1}{2} \left[ e^{j\omega n} \left(\sum_{k=-\infty}^{\infty}h[k]e^{-j\omega k} \right) + e^{-j\omega n} \left(\sum_{k=-\infty}^{\infty}h[k]e^{j\omega k} \right)  \right] \\
+    \\
+         & = \frac{1}{2} \left[ e^{j\omega n} H(e^{j\omega}) + e^{-j\omega n} H(e^{-j\omega}) \right]
+  \end{aligned}
+\end{equation}
+
+Tratando-se de um sistema real, espera-se que $h[n] \in \mathbb{R}$, logo, podemos elencar que $H^{*}(e^{j\omega})=H(e^{-j\omega})$. Adotando a notação fasorial, podemos escrever a saída do sistema como
+
+\begin{equation}
+  \begin{aligned}
+    y[n] & = \frac{1}{2} \left[ e^{j\omega n} H(e^{j\omega}) + e^{-j\omega n} H^*(e^{j\omega}) \right] \\
+         & = \frac{1}{2} \left[ e^{j\omega n}|H(e^{j\omega})|e^{j\angle H(e^{j\omega}} + e^{-j\omega n} |H^*(e^{j\omega})|e^{-j\angle H(e^{j\omega})} \right] \\
+         & = |H(e^{j\omega})| \left( \frac{e^{j(\omega n + \angle H(e^{j\omega}))} + e^{-j(\omega n + \angle H(e^{j\omega}))}}{2} \right) \\
+         & = |H(e^{j\omega})| \cos{(\omega n + \angle H(e^{j\omega}))}
+  \end{aligned}
+\end{equation}
+
+O resultado obtido é muito importante, uma vez que obtemos na saída a mesma forma injetada na entrada, a menos da amplitude e da fase. Dessa forma, podemos variar a frquência do sinal de entrada de $[0,\pi]$ e, analisando a amplitude e a defasagem no sinal de saída, caracterizaremos a resposta em frequência do sistema dado.
+
+Descreveremos dois procedimentos agora, um deles envolverá o esforço de uma pessoa verificando os indicadores da nossa montagem experimental em questão. O outro abordará como seria a automatização desse processo, conferindo maior resolução às medidas, uma vez que o computador poderá executar uma grande quantidade de calculos e aferições dos instrumentos.
+
+\subsubsection{Procedimento manual}
+
+Para o procedimento manual teremos a seguinte metodologia
+
+\begin{enumerate}
+  \item Conectar os sinais de entrada e saída dos sistemas em canais distintos do osciloscópio;
+  \item Configurar o osciloscópio para medir a defasagem entre os dois sinais;
+  \item Configurar o osciloscópio para medir a amplitude do sinal de saída;
+  \item Confiugurar o gerador de sinais para gerar um cosseno em frequência $\omega$ e fase zero; \label{set_omega}
+  \item Aguardar o transiente do sistema e medir amplitude (|H(e^{j\omega})|) e defasagem (\angle H(e^{j\omega}) do sinal de saída;
+  \item Aumentar a frequência e retornar a \ref{set_omega} até que que $\omega=\pi$;
+\end{enumerate}
+
+Cada amplitude e fase será anotada para processamento posterior, resultando na resposta em frquência e até mesmo na resposta ao impulso do sistema.
+
+\subsubsection{Procedimento automático}
+
+Consideraremos aqui o procedimento automático, onde um computador pode gerenciar o gerador de sinais e o osciloscópio. O primeiro deles visará a geração da sequência de entrada no sistema e está descrito na seguinte lista
+
+\begin{enumerate}
+  \item Geraremos vários períodos ($l$ é a variável de contagem dos períodos e $L$ é o número de períodos por frequência) da função cosseno em uma dada frequência $\omega$ inicial, até que o sistema atinja o estado estacionário;
+  \item Aumentamos a frequência em $\Delta\omega$ e repete-se o primeiro passo até a frquência limite para um sistema discreto.
+\end{enumerate}
+
+A lista foi sintetizada no seguinte fluxograma, facilitando a visualização do procedimento
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[node distance=2cm]
+
+    \node (start) [startstop]                                {Início};
+    \node (proc1) [process,   below of=start]                {Lê entradas do usuário};
+    \node (proc2) [process,   below of=proc1]                {Gera um período de $\cos(\omega n)$};
+    \node (deci1) [decision,  below of=proc2, yshift=-0.5cm] {$l\geq L$?};
+    \node (proc4) [process,   left of=deci1, xshift=-2cm]    {Incrementa contador de períodos ($l=l+1$)};
+    \node (deci2) [decision,  below of=deci1, yshift=-0.5cm] {$\omega\geq\pi$?};
+    \node (proc5) [process,   left of=deci2, xshift=-2cm]    {Aumenta frequência ($\omega=\omega+\Delta\omega$)};
+    \node (stop)  [startstop, below of=deci2]                {Fim};
+
+    \draw [arrow] (start) -- (proc1);
+    \draw [arrow] (proc1) -- (proc2);
+    \draw [arrow] (proc2) -- (deci1);
+    \draw [arrow] (deci1) -- node[anchor=west]  {sim} (deci2);
+    \draw [arrow] (deci1) -- node[anchor=south] {não} (proc4);
+    \draw [arrow] (deci2) -- node[anchor=west]  {sim} (stop);
+    \draw [arrow] (deci2) -- node[anchor=south] {não} (proc5);
+    \draw [arrow] (proc4) -- + (-2.5cm,0) |- (proc2);
+    \draw [arrow] (proc5) -- + (-2.5cm,0) |- (proc2);
+
+  \end{tikzpicture}
+  \caption{Algoritmo de aquisição de dados para a identificação do sistema desconhecido.}
+  \label{fig:data_algo}
+\end{figure}
+
+O segundo algoritmo efetuará o pós processamento dos sinais de saída a fim de obter a resposta em frequência do sistema. Segue a lista das operações
+
+\begin{enumerate}
+  \item Descartar os $J$ primeiros ciclos referentes ao transitório do sistema;
+  \item Efetuar a média dos próximos $L-J$ ciclos, amostra por amostra (tentaremos amenizar ruídos dessa forma);
+  \item Obter a amplitude do sinal de saída médio (essa será $|H(e^{j\omega})|$ na frequência em questão);
+  \item Obter a fase do sinal de saída médio (esse será $\angle H(e^{j\omega})$ na frequência em questão);
+  \item Repetir o procedimento até contemplar todas as frquências;
+  \item Plotar os diagramas de ganho e fase (Bode) para o usuário.
+\end{enumerate}
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[node distance=2cm]
+    \node (start)  [startstop]                                {Início};
+    \node (proc0)  [process,   below of=start]                {Lê entrada do usuário};
+    \node (proc1)  [process,   below of=proc0]                {Corte dos dados (transitório)};
+    \node (proc2)  [process,   below of=proc1]                {Média dos períodos};
+    \node (proc3)  [process,   below of=proc2]                {Máximo da média $|H(e^{j\omega})|$};
+    \node (proc4)  [process,   below of=proc3]                {Ocorrência do máximo $\angle H(e^{j\omega})$};
+    \node (deci1)  [decision,  below of=proc4, yshift=-0.5cm] {$\omega\geq\pi$?};
+    \node (proc51) [process,   left of=deci1, xshift=-2cm]    {Próxima frequência ($\omega=\omega+\Delta\omega$)};
+    \node (proc5)  [process,   right of=deci1, xshift=2cm]    {Plotar diagramas para o usuário};
+    \node (proc6)  [process,   below of=proc5]                {Arquivar resposta em frequência};
+    \node (stop)   [startstop, below of=proc6]                {Fim};
+
+    \draw [arrow] (start) -- (proc0);
+    \draw [arrow] (proc0) -- (proc1);
+    \draw [arrow] (proc1) -- (proc2);
+    \draw [arrow] (proc2) -- (proc3);
+    \draw [arrow] (proc3) -- (proc4);
+    \draw [arrow] (proc4) -- (deci1);
+
+    \draw [arrow] (deci1) -- node[anchor=south] {sim} (proc5);
+    \draw [arrow] (proc5) -- (proc6);
+    \draw [arrow] (proc6) -- (stop);
+
+    \draw [arrow] (deci1)  -- node[anchor=south] {não} (proc51);
+    \draw [arrow] (proc51) |- (proc1);
+
+  \end{tikzpicture}
+  \caption{Algoritmo de pós processamento para a identificação do sistema desconhecido.}
+  \label{fig:posproc_algo}
+  \end{figure}
+
+\section{Parte computacional}
 
 
 
