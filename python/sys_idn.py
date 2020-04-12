@@ -1,7 +1,4 @@
-import matplotlib.pyplot as plt
 import numpy as np
-from sistema_desconhecido import sistema_desconhecido
-import csv
 
 class system_identification():
 
@@ -49,38 +46,3 @@ class system_identification():
                    H_file.transpose(), delimiter=" ",
                    header="Frequency_[rad] Amplitude_[a.u.]")
         return H
-
-# # Input generator
-# max_period = 100
-# min_period = 2
-# generate_periods = 100
-#
-# # Pos processor
-# proc_period = 99
-
-sys_idn = system_identification(100, 2, 100)
-x = sys_idn.input_generator()
-y = sistema_desconhecido(x)
-H = sys_idn.output_processor(y, 99)
-
-plt.subplot(3, 1, 1)
-plt.stem(x, use_line_collection=True, basefmt=" ")
-plt.title('Input/output graphs')
-plt.ylabel('Input [a.u.]')
-plt.xlabel('Time [samples]')
-plt.grid()
-
-plt.subplot(3, 1, 2)
-plt.stem(y, use_line_collection=True, basefmt=" ")
-plt.ylabel('Output [a.u.]')
-plt.xlabel('Time [samples]')
-plt.grid()
-
-plt.subplot(3, 1, 3)
-plt.plot(sys_idn.frequencies_array(), H)
-plt.xlabel('Frequency [rad]')
-plt.ylabel('Amplitude [a.u.]')
-plt.grid()
-
-plt.savefig('frequency_response.png')
-plt.show()
