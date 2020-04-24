@@ -9,6 +9,14 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{hyperref}
+\usepackage{minted}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=black,
+    urlcolor=blue,
+}
 
 \pgfplotsset{compat=1.16}
 
@@ -167,7 +175,7 @@ Neste segundo momento iremos avaliar os extremos da convolução discreta. Para 
   \label{fig:begin_convolution}
 \end{figure}
 
-Dessa imagem podemos notar que $n<0$ implica $y[n]=0$ uma vez que um nessas regiões os produtos das amostras da resposta ao impulso com a entrada seriam nulas. Isso se dá porque $x[n]=0$ para $n<0$, por definição do sinal.
+Desta imagem podemos notar que $n<0$ implica $y[n]=0$ uma vez que um nessas regiões os produtos das amostras da resposta ao impulso com a entrada seriam nulas. Isso se dá porque $x[n]=0$ para $n<0$, por definição do sinal.
 O outro extremo pode ser analisado por partes. Imagine primeiramente que o deslocamento será de $n=K-1$. Nessa condição, a amostra $h[0]$ coincidirá com a amostra $x[K-1]$. Com essa intuição, podemos imaginar então a segunda parte do raciocínio, quando a amostra $h[D-1]$ coincida com $x[K-1]$. Essa será o outro extremo do cálculo da convolução. Para que essa situação ocorra, teremos que fazer o deslocamento ser $n=K+D-2$. Segue o gráfico dessa última condição:
 
 \begin{figure}[H]
@@ -359,7 +367,7 @@ O resultado obtido é muito importante, uma vez que obtemos na saída a mesma fo
 
 Descreveremos dois procedimentos agora, um deles envolverá o esforço de uma pessoa verificando os indicadores da nossa montagem experimental em questão. O outro abordará como seria a automatização desse processo, conferindo maior resolução às medidas, uma vez que o computador poderá executar uma grande quantidade de calculos e aferições dos instrumentos.
 
-\subsubsection{Procedimento manual}
+\subsubsection{Procedimento manual}\label{sssec:manual_procedure}
 
 Para o procedimento manual teremos a seguinte metodologia
 
@@ -368,13 +376,13 @@ Para o procedimento manual teremos a seguinte metodologia
   \item Configurar o osciloscópio para medir a defasagem entre os dois sinais;
   \item Configurar o osciloscópio para medir a amplitude do sinal de saída;
   \item Confiugurar o gerador de sinais para gerar um cosseno em frequência $\omega$ e fase zero; \label{set_omega}
-  \item Aguardar o transiente do sistema e medir amplitude (|H(e^{j\omega})|) e defasagem (\angle H(e^{j\omega}) do sinal de saída;
+  \item Aguardar o transiente do sistema e medir amplitude ($|H(e^{j\omega})|$) e defasagem ($\angle H(e^{j\omega}$) do sinal de saída;
   \item Aumentar a frequência e retornar a \ref{set_omega} até que que $\omega=\pi$;
 \end{enumerate}
 
 Cada amplitude e fase será anotada para processamento posterior, resultando na resposta em frquência e até mesmo na resposta ao impulso do sistema.
 
-\subsubsection{Procedimento automático}
+\subsubsection{Procedimento automático}\label{sssec:automated_procedure}
 
 Consideraremos aqui o procedimento automático, onde um computador pode gerenciar o gerador de sinais e o osciloscópio. O primeiro deles visará a geração da sequência de entrada no sistema e está descrito na seguinte lista
 
@@ -459,6 +467,90 @@ O segundo algoritmo efetuará o pós processamento dos sinais de saída a fim de
   \end{figure}
 
 \section{Parte computacional}
+
+A partir de alguns esquemas e protótipos definidos nas subseções \ref{sssec:automated_procedure} e \ref{sssec:manual_procedure}, chegamos em um código para ensaiar o sistema desconhecido fornecido pelo professor. Ele, assim como os códigos fonte deste relatório em latex podem ser encotrados neste \href{https://github.com/georgekontogiorgos/ie550_1s2020}{repositório} (Uma cópia do repositório será enviada como entrega do exercício a fim de evitar eventuais discordâncias com o repositório no github por futuras melhorias e implementações). Houveram modificações na estrutura do código, entre a idealização nessas subseções de teoria e a parte de implementação prática. Decidimos não alterar a diagramação do sistema anterior para abrir a oportunidade de discutir os problemas encontrados.
+Criamos uma biblioteca de funções para a identificação de sistemas lineares e invarianetes no tempo, com suas funções contidas em \texttt{sys\_idn.py} e a execução do procedimento se deu no arquivo \texttt{efc1.py}. Essa divisão foi realizada para aumentar a modularização dos algoritmos e, nos referenciaremos à biblioteca como biblioteca e a ao arquivo de identificação como código de execução.
+
+O programa inicia-se gerando um número de períodos de cossenos em um período inicial, ambos definidos pelo usuário. Decrementa-se o número de períodos e repetem-se a mesma quantidade de períodos, até que o período final seja atingido.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.25]{figures/cos_sweep_N_10_to_N_2_P_2.PNG}
+  \caption{Geração de um trem de cossenos, partindo do período $N=10$ até $N=2$, com 2 períodos por frequência.}\label{fig:cos_sweep_N_10_to_N_2_P_2}
+\end{figure}
+
+Decidiu-se utilizar o período em detrimento da frequência dada a grande dificuldade na manipulação de incrementos de frequência. Observamos problemas como os das figuras \ref{fig:bias_freq_next_to_pi_sweep} e \ref{fig:bias_freq_next_to_pi}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.25]{figures/bias_freq_next_to_pi_sweep.PNG}
+  \caption{Saída anômala durante a identificação por suposta falta de periodicidade do sinal.}\label{fig:bias_freq_next_to_pi_sweep}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.25]{figures/bias_freq_next_to_pi.PNG}
+  \caption{Testes para análise em detalhes, deslocamento da saída por suposta falta de periodicidade do sinal. Observe que os platôs nos picos superiores do sinal estão apenas conectando um período ao próximo, mas essa conexão é inválida, uma vez que o período para essa frequência não é um inteiro.}\label{fig:bias_freq_next_to_pi}
+\end{figure}
+
+Chegamos a conclusão que o método de incremento de frequências estava se tornando complicado ao tentar encontrar frequências para as quais o sinal era periódico. Quando temos períodos não inteiros, aparentemente a média do sinal não é nula, injetando um nível contínuo (CC) no sistema. A definição da frequência se deu então pelo período, fazendo $k=1$ na equação de garantia do sinal periódico
+
+\begin{equation}
+  \omega=\frac{2\pi k}{N}=\frac{2\pi}{N}
+\end{equation}
+
+e assim conseguimos garantir que o sinal de saída, como o apresentado na figura \ref{fig:cos_sweep_N_10_to_N_2_P_2}, não possua a deriva observada em amarelo na \ref{fig:bias_freq_next_to_pi_sweep}. A confecção do vetor de frequências de excitação a partir dos períodos é dada na última linha do construtor da classe da biblioteca
+
+\begin{minted}{python}
+  def __init__(self, max_period, min_period, generate_periods):
+      self.max_period = max_period
+      self.min_period = min_period
+      self.generate_periods = generate_periods
+      self.periods = np.arange(self.max_period, self.min_period-1, -1)
+      self.frequencies = 2*np.pi/self.periods
+\end{minted}
+
+Os parâmetros do usuário são passados para a instância da classe no código de execução
+
+\begin{minted}{python}
+  ## Instantiate system identification class
+  #   Maximum period = 100
+  #   Minimum period = 2
+  #   Periods in each frequency = 100
+  sys_idn = system_identification(100, 2, 100)
+\end{minted}
+
+e a construção do sinal se dá pela seguinte função
+
+\begin{minted}{python}
+  # Generate cosine "sweep" system input
+  x = sys_idn.input_generator()
+\end{minted}
+
+O fato de possuirmos um computador digital impede que criemos um sinal de cosseno infinito, como idealizado pela teoria. Com isso, ocorre um transiente, na aplicação abrupta do sinal, visto que o sinal a esquerda do zero é zero desde $-\infty$. Para contornar esse problema, eliminamos as amostras iniciais da saída a fim de janelar um trecho em que o regime permanente já foi atingido. Isso foi discutido nas seções mencionadas (\ref{sssec:automated_procedure} e \ref{sssec:manual_procedure}) e, no código final, eliminamos um número de períodos definidos pelo usuário, o qual deverá analisar as saídas e verificar se aquele número foi suficientemente grande para a eliminação do transiente. A geração de diversos períodos no sinal de entrada também faz parte dessa eliminação do regime transitório, uma vez que o sistema permanece um tempo sendo excitado por uma única frequência.
+
+A entrada passa pelo sistema e seu resultado é pós processado pelos seguintes trechos do código de execução
+
+\begin{minted}{python}
+  # Get the system output from our input
+  y = sistema_desconhecido(x)
+
+  ## Get the frequency respose
+  #   Eliminate first 99 periods per frequency for each frequency to eliminate transitory response
+  H = sys_idn.output_processor(y, 99)
+\end{minted}
+
+São eliminadas os 99 primeiros períodos de cada frequência dos 100 gerados. Isso foi suficiente para uma boa identificação e, aumentar esses números não trouxe melhoras significativas. Os trechos de código seguintes são referentes a plotagem dos gráficos e serão omitidos, no entanto, a figura \ref{fig:frequency_response} sintetiza e apresenta os resultados de todo o procetimento.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.7]{figures/frequency_response.png}
+  \caption{Gráficos da entrada, saída e resposta em frequência do sistema.}\label{fig:frequency_response}
+\end{figure}
+
+O intervalo requisitado pelo enunciado está compreendido,
+
+Um ponto de grande discussão foi a medição da amplitude do sinal de saída. Extraímos o valor máximo do período seguinte do descarte e isso, por hipótese, pareceu suficiente dado que todo período contempla o valor máximo por cada trecho ser um sinal periódico, garantido por sua geração.
 
 
 
